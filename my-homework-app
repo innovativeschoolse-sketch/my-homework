@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مذكّري - تطبيق الواجبات الذكي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
+        
+        * {
+            font-family: 'Tajawal', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-shadow {
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .bounce-in {
+            animation: bounceIn 0.6s ease-out;
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .pulse-star {
+            animation: pulseStar 2s infinite;
+        }
+        
+        @keyframes pulseStar {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        .slide-up {
+            animation: slideUp 0.4s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="gradient-bg text-white p-6 card-shadow">
+        <div class="max-w-4xl mx-auto">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="text-3xl">📚</div>
+                    <h1 class="text-2xl font-bold">مذكّري</h1>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full">
+                        <span class="text-yellow-300 pulse-star">⭐</span>
+                        <span id="totalStars" class="font-bold">0</span>
+                    </div>
+                    <div class="text-sm opacity-90" id="currentDate"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-4xl mx-auto p-6">
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-green-500 text-white p-4 rounded-xl card-shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-2xl font-bold" id="completedCount">0</div>
+                        <div class="text-sm opacity-90">مُنجز اليوم</div>
+                    </div>
+                    <div class="text-3xl">✅</div>
+                </div>
+            </div>
+            
+            <div class="bg-orange-500 text-white p-4 rounded-xl card-shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-2xl font-bold" id="pendingCount">0</div>
+                        <div class="text-sm opacity-90">في الانتظار</div>
+                    </div>
+                    <div class="text-3xl">⏳</div>
+                </div>
+            </div>
+            
+            <div class="bg-red-500 text-white p-4 rounded-xl card-shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-2xl font-bold" id="overdueCount">0</div>
+                        <div class="text-sm opacity-90">متأخر</div>
+                    </div>
+                    <div class="text-3xl">⚠️</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add New Task -->
+        <div class="bg-white rounded-xl p-6 card-shadow mb-6">
+            <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                <span>➕</span>
+                إضافة واجب جديد
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <input type="text" id="taskTitle" placeholder="عنوان الواجب..." 
+                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                
+                <select id="taskSubject" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                    <option value="">اختر المادة</option>
+                    <option value="رياضيات">📊 رياضيات</option>
+                    <option value="لغة عربية">📝 لغة عربية</option>
+                    <option value="علوم">🔬 علوم</option>
+                    <option value="تاريخ">📜 تاريخ</option>
+                    <option value="جغرافيا">🌍 جغرافيا</option>
+                    <option value="إنجليزي">🇬🇧 إنجليزي</option>
+                </select>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <input type="date" id="taskDate" 
+                       class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                
+                <select id="taskPriority" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                    <option value="منخفضة">🟢 أولوية منخفضة</option>
+                    <option value="متوسطة">🟡 أولوية متوسطة</option>
+                    <option value="عالية">🔴 أولوية عالية</option>
+                </select>
+            </div>
+            
+            <textarea id="taskNotes" placeholder="ملاحظات إضافية..." 
+                      class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent mb-4" rows="3"></textarea>
+            
+            <button onclick="addTask()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors duration-200 flex items-center gap-2">
+                <span>✨</span>
+                إضافة الواجب
+            </button>
+        </div>
+
+        <!-- Tasks List -->
+        <div class="bg-white rounded-xl p-6 card-shadow">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold flex items-center gap-2">
+                    <span>📋</span>
+                    قائمة الواجبات
+                </h2>
+                
+                <select id="filterSubject" onchange="filterTasks()" class="p-2 border border-gray-300 rounded-lg text-sm">
+                    <option value="">جميع المواد</option>
+                    <option value="رياضيات">رياضيات</option>
+                    <option value="لغة عربية">لغة عربية</option>
+                    <option value="علوم">علوم</option>
+                    <option value="تاريخ">تاريخ</option>
+                    <option value="جغرافيا">جغرافيا</option>
+                    <option value="إنجليزي">إنجليزي</option>
+                </select>
+            </div>
+            
+            <div id="tasksList" class="space-y-3">
+                <!-- Tasks will be added here -->
+            </div>
+            
+            <div id="emptyState" class="text-center py-12 text-gray-500">
+                <div class="text-6xl mb-4">📝</div>
+                <div class="text-lg font-medium mb-2">لا توجد واجبات بعد</div>
+                <div class="text-sm">ابدأ بإضافة واجبك الأول!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-8 max-w-sm mx-4 text-center bounce-in">
+            <div class="text-6xl mb-4">🎉</div>
+            <h3 class="text-xl font-bold mb-2">أحسنت!</h3>
+            <p class="text-gray-600 mb-4">لقد أنجزت واجبًا آخر وحصلت على نجمة!</p>
+            <div class="flex items-center justify-center gap-2 mb-4">
+                <span class="text-yellow-500 text-2xl pulse-star">⭐</span>
+                <span class="text-lg font-bold">+1 نجمة</span>
+            </div>
+            <button onclick="closeSuccessModal()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg">
+                رائع!
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        let totalStars = parseInt(localStorage.getItem('totalStars')) || 0;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            updateCurrentDate();
+            updateStarsDisplay();
+            renderTasks();
+            updateStats();
+            
+            // Set default date to today
+            document.getElementById('taskDate').value = new Date().toISOString().split('T')[0];
+        });
+
+        function updateCurrentDate() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('ar-SA', options);
+        }
+
+        function updateStarsDisplay() {
+            document.getElementById('totalStars').textContent = totalStars;
+        }
+
+        function addTask() {
+            const title = document.getElementById('taskTitle').value.trim();
+            const subject = document.getElementById('taskSubject').value;
+            const date = document.getElementById('taskDate').value;
+            const priority = document.getElementById('taskPriority').value;
+            const notes = document.getElementById('taskNotes').value.trim();
+
+            if (!title || !subject || !date) {
+                alert('يرجى ملء جميع الحقول المطلوبة');
+                return;
+            }
+
+            const task = {
+                id: Date.now(),
+                title,
+                subject,
+                date,
+                priority,
+                notes,
+                completed: false,
+                createdAt: new Date().toISOString()
+            };
+
+            tasks.push(task);
+            saveTasks();
+            renderTasks();
+            updateStats();
+            clearForm();
+        }
+
+        function clearForm() {
+            document.getElementById('taskTitle').value = '';
+            document.getElementById('taskSubject').value = '';
+            document.getElementById('taskDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('taskPriority').value = 'منخفضة';
+            document.getElementById('taskNotes').value = '';
+        }
+
+        function toggleTask(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                task.completed = !task.completed;
+                
+                if (task.completed) {
+                    totalStars++;
+                    localStorage.setItem('totalStars', totalStars);
+                    updateStarsDisplay();
+                    showSuccessModal();
+                }
+                
+                saveTasks();
+                renderTasks();
+                updateStats();
+            }
+        }
+
+        function deleteTask(taskId) {
+            if (confirm('هل أنت متأكد من حذف هذا الواجب؟')) {
+                tasks = tasks.filter(t => t.id !== taskId);
+                saveTasks();
+                renderTasks();
+                updateStats();
+            }
+        }
+
+        function getSubjectIcon(subject) {
+            const icons = {
+                'رياضيات': '📊',
+                'لغة عربية': '📝',
+                'علوم': '🔬',
+                'تاريخ': '📜',
+                'جغرافيا': '🌍',
+                'إنجليزي': '🇬🇧'
+            };
+            return icons[subject] || '📚';
+        }
+
+        function getPriorityColor(priority) {
+            const colors = {
+                'منخفضة': 'bg-green-100 text-green-800',
+                'متوسطة': 'bg-yellow-100 text-yellow-800',
+                'عالية': 'bg-red-100 text-red-800'
+            };
+            return colors[priority] || 'bg-gray-100 text-gray-800';
+        }
+
+        function isOverdue(date) {
+            const today = new Date().toISOString().split('T')[0];
+            return date < today;
+        }
+
+        function renderTasks() {
+            const tasksList = document.getElementById('tasksList');
+            const emptyState = document.getElementById('emptyState');
+            const filterSubject = document.getElementById('filterSubject').value;
+            
+            let filteredTasks = tasks;
+            if (filterSubject) {
+                filteredTasks = tasks.filter(task => task.subject === filterSubject);
+            }
+
+            if (filteredTasks.length === 0) {
+                tasksList.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            
+            // Sort tasks: incomplete first, then by date, then by priority
+            filteredTasks.sort((a, b) => {
+                if (a.completed !== b.completed) {
+                    return a.completed - b.completed;
+                }
+                if (a.date !== b.date) {
+                    return new Date(a.date) - new Date(b.date);
+                }
+                const priorityOrder = { 'عالية': 0, 'متوسطة': 1, 'منخفضة': 2 };
+                return priorityOrder[a.priority] - priorityOrder[b.priority];
+            });
+
+            tasksList.innerHTML = filteredTasks.map(task => {
+                const overdue = !task.completed && isOverdue(task.date);
+                const taskDate = new Date(task.date).toLocaleDateString('ar-SA');
+                
+                return `
+                    <div class="border rounded-lg p-4 ${task.completed ? 'bg-green-50 border-green-200' : overdue ? 'bg-red-50 border-red-200' : 'bg-white border-gray-200'} slide-up">
+                        <div class="flex items-start justify-between">
+                            <div class="flex items-start gap-3 flex-1">
+                                <input type="checkbox" ${task.completed ? 'checked' : ''} 
+                                       onchange="toggleTask(${task.id})"
+                                       class="mt-1 w-5 h-5 text-purple-600 rounded focus:ring-purple-500">
+                                
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="text-lg">${getSubjectIcon(task.subject)}</span>
+                                        <h3 class="font-medium ${task.completed ? 'line-through text-gray-500' : 'text-gray-900'}">${task.title}</h3>
+                                        <span class="px-2 py-1 text-xs rounded-full ${getPriorityColor(task.priority)}">${task.priority}</span>
+                                    </div>
+                                    
+                                    <div class="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                                        <span class="flex items-center gap-1">
+                                            <span>📚</span>
+                                            ${task.subject}
+                                        </span>
+                                        <span class="flex items-center gap-1 ${overdue ? 'text-red-600 font-medium' : ''}">
+                                            <span>${overdue ? '⚠️' : '📅'}</span>
+                                            ${taskDate}
+                                        </span>
+                                    </div>
+                                    
+                                    ${task.notes ? `<p class="text-sm text-gray-600 ${task.completed ? 'line-through' : ''}">${task.notes}</p>` : ''}
+                                </div>
+                            </div>
+                            
+                            <button onclick="deleteTask(${task.id})" 
+                                    class="text-red-500 hover:text-red-700 p-1 rounded">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterTasks() {
+            renderTasks();
+        }
+
+        function updateStats() {
+            const completed = tasks.filter(t => t.completed).length;
+            const pending = tasks.filter(t => !t.completed && !isOverdue(t.date)).length;
+            const overdue = tasks.filter(t => !t.completed && isOverdue(t.date)).length;
+
+            document.getElementById('completedCount').textContent = completed;
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('overdueCount').textContent = overdue;
+        }
+
+        function showSuccessModal() {
+            document.getElementById('successModal').classList.remove('hidden');
+            document.getElementById('successModal').classList.add('flex');
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.add('hidden');
+            document.getElementById('successModal').classList.remove('flex');
+        }
+
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('successModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSuccessModal();
+            }
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97a80506650895f4',t:'MTc1NzA5OTM1Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
